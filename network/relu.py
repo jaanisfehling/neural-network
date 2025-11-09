@@ -1,10 +1,6 @@
-from .base import BaseLayer
 import numpy as np
 
-class ReLU(BaseLayer):
-    def __init__(self):
-        super().__init__()
-
+class ReLU():
     def forward(self, input):
         self.cached_input = input
         return np.maximum(0, input)

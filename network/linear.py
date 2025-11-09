@@ -1,9 +1,7 @@
-from .base import BaseLayer
 import numpy as np
 
-class LinearLayer(BaseLayer):
+class LinearLayer():
     def __init__(self, input_size, output_size):
-        super().__init__()
         self.input_size = input_size
         self.output_size = output_size
         self.init_weights()
