@@ -1,9 +1,12 @@
 import numpy as np
 
+
 class MSELoss:
     def forward(self, predicted, truth):
         self.predicted = predicted
         self.truth = truth
+        assert predicted.shape == truth.shape
+
         # Fully reduced loss, meaning average of batch aswell
         return np.mean((predicted - truth) ** 2)
 
@@ -13,4 +16,3 @@ class MSELoss:
         # = 2/n * (y^hat_0 - y_0 + ... + y^hat_n - y_n)
 
         return (2 / self.predicted.size) * (self.predicted - self.truth)
-
