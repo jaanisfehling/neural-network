@@ -1,8 +1,8 @@
-from network import *
 import numpy as np
 from sklearn.datasets import fetch_california_housing
 from sklearn.preprocessing import StandardScaler
 
+from network import *
 
 # Example dataset from sklearn
 X, y = fetch_california_housing(return_X_y=True)
@@ -20,8 +20,8 @@ n_total = len(X)
 n_train = int(0.8 * n_total)
 n_val = int(0.1 * n_total)
 X_train, y_train = X[:n_train], y[:n_train]
-X_val, y_val = X[n_train:n_train + n_val], y[n_train:n_train + n_val]
-X_test, y_test = X[n_train + n_val:], y[n_train + n_val:]
+X_val, y_val = X[n_train : n_train + n_val], y[n_train : n_train + n_val]
+X_test, y_test = X[n_train + n_val :], y[n_train + n_val :]
 
 train_dataset = Dataset(X_train, y_train)
 val_dataset = Dataset(X_val, y_val)
@@ -31,11 +31,7 @@ val_loader = DataLoader(val_dataset, batch_size=32)
 test_loader = DataLoader(test_dataset, batch_size=32)
 
 
-model = Model(
-    LinearLayer(8, 64),
-    ReLU(),
-    LinearLayer(64, 1)
-)
+model = Model(LinearLayer(8, 64), ReLU(), LinearLayer(64, 1))
 loss_fn = MSELoss()
 optimizer = AdamWOptimizer(model, learning_rate=0.001, weight_decay=0.01)
 
@@ -63,10 +59,9 @@ for epoch in range(100):
 
 # Test
 test_losses = []
-for x_batch, y_batch in val_loader:
+for x_batch, y_batch in test_loader:
     y_pred = model.forward(x_batch)
     loss = loss_fn.forward(y_pred, y_batch)
     test_losses.append(loss)
 
 print(f"Test Loss: {np.mean(test_losses):.4f}")
-
