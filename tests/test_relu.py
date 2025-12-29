@@ -1,5 +1,7 @@
 import numpy as np
+
 from network.relu import ReLU
+
 
 def test_forward_single():
     layer = ReLU()
@@ -9,6 +11,7 @@ def test_forward_single():
     expected_output = np.array([1.0, 2.0, 3.0, 0.0, 0.0])
     assert np.array_equal(y, expected_output)
 
+
 def test_forward_batch():
     layer = ReLU()
     x = np.array([[1.0, -1.0, 0.0], [-2.0, 3.0, 4.0]])
@@ -16,6 +19,7 @@ def test_forward_batch():
 
     expected_output = np.array([[1.0, 0.0, 0.0], [0.0, 3.0, 4.0]])
     assert np.array_equal(y, expected_output)
+
 
 def test_backward_single():
     layer = ReLU()
@@ -27,6 +31,7 @@ def test_backward_single():
     expected_gradient = np.array([0.5, 0.0, 0.0, 0.5])
     assert np.array_equal(dx, expected_gradient)
 
+
 def test_backward_batch():
     layer = ReLU()
     x = np.array([[1.0, -1.0, 0.0], [-2.0, 3.0, 4.0]])
@@ -36,4 +41,3 @@ def test_backward_batch():
 
     expected_gradient = np.array([[0.1, 0.0, 0.0], [0.0, 0.5, 0.6]])
     assert np.array_equal(dx, expected_gradient)
-

@@ -1,5 +1,7 @@
-from network.adam import AdamWOptimizer
 import numpy as np
+
+from network.adam import AdamWOptimizer
+
 
 def test_initialization():
     class DummyModel:
@@ -23,6 +25,7 @@ def test_initialization():
     assert len(optimizer.m) == 2
     assert len(optimizer.v) == 2
     assert optimizer.t == 1
+
 
 def test_momentum_shape():
     class DummyModel:
@@ -63,6 +66,7 @@ def test_momentum_shape():
     assert optimizer.v[2][0].shape == (2,)
     assert optimizer.v[2][1].shape == (2,)
 
+
 def test_step():
     class DummyModel:
         def __init__(self):
@@ -88,4 +92,3 @@ def test_step():
     assert not np.array_equal(model.layers[0].params[1], np.array([1.0, -1.0]))
     assert not np.array_equal(model.layers[1].params[1], np.array([1.0, -1.0]))
     assert not np.array_equal(model.layers[1].params[0], np.array([0.5, -0.5]))
-

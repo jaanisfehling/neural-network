@@ -13,4 +13,3 @@ class Model:
         for layer in reversed(self.layers):
             upstream_gradient = layer.backward(upstream_gradient)
         return upstream_gradient
-

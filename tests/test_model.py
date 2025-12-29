@@ -1,5 +1,6 @@
 from network.model import Model
 
+
 def test_model_forward_backward():
     class DummyLayer:
         def forward(self, input):
@@ -21,5 +22,3 @@ def test_model_forward_backward():
     backward_input = 4
     backward_output = model.backward(backward_input)
     assert backward_output == 16
-
-

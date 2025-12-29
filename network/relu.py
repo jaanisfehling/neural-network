@@ -1,6 +1,7 @@
 import numpy as np
 
-class ReLU():
+
+class ReLU:
     def forward(self, input):
         self.cached_input = input
         return np.maximum(0, input)
@@ -15,4 +16,3 @@ class ReLU():
 
     def gradients(self):
         return []
-

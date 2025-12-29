@@ -1,10 +1,13 @@
 import numpy as np
+
 from network.linear import LinearLayer
+
 
 def test_init_weights_shape():
     layer = LinearLayer(4, 3)
     assert layer.weights.shape == (3, 4)
     assert layer.biases.shape == (3,)
+
 
 def test_forward_shape_single():
     input_size, output_size = 4, 2
@@ -14,6 +17,7 @@ def test_forward_shape_single():
     y = layer.forward(x)
     assert y.shape == (output_size,)
 
+
 def test_forward_shape_batch():
     batch_size, input_size, output_size = 5, 4, 3
     layer = LinearLayer(input_size, output_size)
@@ -22,6 +26,7 @@ def test_forward_shape_batch():
     y = layer.forward(x)
 
     assert y.shape == (batch_size, output_size)
+
 
 def test_backward_shapes_single():
     in_size, out_size = 4, 2
@@ -49,4 +54,3 @@ def test_backward_shapes_batch():
     assert dx.shape == (batch_size, in_size)
     assert layer.dw.shape == (out_size, in_size)
     assert layer.db.shape == (out_size,)
-

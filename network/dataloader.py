@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class DataLoader:
     def __init__(self, dataset, batch_size, shuffle=True):
         self.dataset = dataset
@@ -19,10 +20,9 @@ class DataLoader:
             raise StopIteration
 
         end = self.cursor + self.batch_size
-        batch_indices = self.indices[self.cursor:end]
+        batch_indices = self.indices[self.cursor : end]
         self.cursor = end
 
         batch = [self.dataset[i] for i in batch_indices]
         x, y = zip(*batch)
         return np.stack(x, axis=0), np.stack(y, axis=0)
-
