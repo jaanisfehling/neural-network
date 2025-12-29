@@ -15,4 +15,5 @@ class MSELoss:
         # dL/dy^hat = 1/n * (2 * (y^hat_0 - y_0) * 1 + ... + 2 * (y^hat_n - y_n) * 1)
         # = 2/n * (y^hat_0 - y_0 + ... + y^hat_n - y_n)
 
+        # Fully reduced loss, so divide by batch size + elements
         return (2 / self.predicted.size) * (self.predicted - self.truth)
