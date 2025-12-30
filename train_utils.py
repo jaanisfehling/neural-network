@@ -22,7 +22,7 @@ def epoch_run(
     return losses / total_n, final_metric_agg / total_n
 
 
-def accuracy_metric(y_pred, y_true):
+def accuracy(y_pred, y_true):
     y_hat = (y_pred >= 0.5).astype(int)
     correct_n = np.sum(y_hat == y_true)
     return correct_n
