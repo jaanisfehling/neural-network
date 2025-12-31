@@ -1,17 +1,19 @@
 import numpy as np
 
+from network.relu import ReLU
+
 
 class LinearLayer:
-    def __init__(self, input_size, output_size):
+    def __init__(self, input_size, output_size, activation=ReLU):
         self.input_size = input_size
         self.output_size = output_size
-        self.init_weights()
+        self.init_weights(activation)
 
-    def init_weights(self, activation="relu"):
-        if activation == "relu":
+    def init_weights(self, activation):
+        if activation == ReLU:
             std_dev = np.sqrt(2 / self.input_size)
         else:
-            std_dev = np.sqrt(2 / self.input_size + self.output_size)
+            std_dev = np.sqrt(2 / (self.input_size + self.output_size))
 
         self.weights = np.random.normal(0, std_dev, (self.output_size, self.input_size))
         self.biases = np.zeros(self.output_size)

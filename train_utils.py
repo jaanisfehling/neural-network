@@ -95,9 +95,10 @@ def create_model(cfg: dict) -> Model:
     layers.extend(
         [
             LinearLayer(last_layer_units, cfg["output_size"], activation=cfg["activation_output_layer"]),
-            cfg["activation_output_layer"](),
         ]
     )
+    if cfg["activation_output_layer"] is not None:
+        layers.append(cfg["activation_output_layer"]())
     return Model(*layers)
 
 
