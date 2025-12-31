@@ -1,5 +1,5 @@
 Custom neural network implemented using numpy.
 Architecture: LinearLayer(12, 128), ReLU, LinearLayer(128, 64), ReLU, LinearLayer(64, 128), ReLU, LinearLayer(128, 4), 
 Trained using MSE Loss and AdamW optimizer with learning rate 0.01 and weight decay 0.001.
-Grid Search + Cross Validation and holding out the test set. 15% as test, k = 5.
+Grid Search + Cross Validation and holding out the test set. 15% as test, k = 5. Final training with all data, including test.
 Batch size 32, early stopping with patience 5, trained in 30 Epochs.
