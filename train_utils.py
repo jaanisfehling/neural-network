@@ -66,14 +66,16 @@ def generate_param_cfgs(parameters: dict[list]) -> dict:
 
 def create_model(cfg: dict) -> Model:
     layers = [
-        LinearLayer(cfg["input_size"], cfg["hidden_units_layer_1"]),
+        LinearLayer(cfg["input_size"], cfg["hidden_units_layer_1"], activation=cfg["activation_hidden_layer"]),
         cfg["activation_hidden_layer"](),
     ]
     last_layer_units = cfg["hidden_units_layer_1"]
     if cfg["hidden_units_layer_2"]:
         layers.extend(
             [
-                LinearLayer(cfg["hidden_units_layer_1"], cfg["hidden_units_layer_2"]),
+                LinearLayer(
+                    cfg["hidden_units_layer_1"], cfg["hidden_units_layer_2"], activation=cfg["activation_hidden_layer"]
+                ),
                 cfg["activation_hidden_layer"](),
             ]
         )
@@ -81,14 +83,18 @@ def create_model(cfg: dict) -> Model:
         if cfg["hidden_units_layer_3"]:
             layers.extend(
                 [
-                    LinearLayer(cfg["hidden_units_layer_2"], cfg["hidden_units_layer_3"]),
+                    LinearLayer(
+                        cfg["hidden_units_layer_2"],
+                        cfg["hidden_units_layer_3"],
+                        activation=cfg["activation_hidden_layer"],
+                    ),
                     cfg["activation_hidden_layer"](),
                 ]
             )
             last_layer_units = cfg["hidden_units_layer_3"]
     layers.extend(
         [
-            LinearLayer(last_layer_units, cfg["output_size"]),
+            LinearLayer(last_layer_units, cfg["output_size"], activation=cfg["activation_output_layer"]),
             cfg["activation_output_layer"](),
         ]
     )
@@ -104,18 +110,28 @@ def train_model(
     final_metric_fn: callable,
     max_epochs: int = 200,
     min_epochs: int = 20,
-) -> tuple[Model, float, float]:
+) -> tuple[Model, float, int, dict]:
     patience = 5
     epochs_since_improve = 0
     best_val_loss = float("inf")
     best_val_result = None
     best_num_of_epochs = 0
+    curves = {
+        "train_loss": [],
+        "val_loss": [],
+        "train_final_metric": [],
+        "val_final_metric": [],
+    }
     for i in range(1, max_epochs + 1):
-        epoch_run(model, loss_fn, optimizer, train_dataloader, final_metric_fn, update_weights=True)
+        loss, result = epoch_run(model, loss_fn, optimizer, train_dataloader, final_metric_fn, update_weights=True)
+        curves["train_loss"].append(loss)
+        curves["train_final_metric"].append(result)
         if val_dataloader is not None:
             val_loss, val_result = epoch_run(
                 model, loss_fn, optimizer, val_dataloader, final_metric_fn, update_weights=False
             )
+            curves["val_loss"].append(val_loss)
+            curves["val_final_metric"].append(val_result)
             # Min epochs before early stopping can kick in
             if i > min_epochs:
                 # Early stopping using loss
@@ -131,7 +147,7 @@ def train_model(
                     if epochs_since_improve >= patience:
                         break
 
-    return (model, best_val_result, best_num_of_epochs)
+    return (model, best_val_result, best_num_of_epochs, curves)
 
 
 def cross_validate(
@@ -140,7 +156,7 @@ def cross_validate(
     cfg: dict,
     final_metric_fn: callable,
     k: int = 5,
-) -> tuple[float, float]:
+) -> tuple[float, int]:
     fold_results = []
     fold_epochs = []
     X_folds = np.array_split(X, k)
@@ -155,14 +171,20 @@ def cross_validate(
         XTr_dl = DataLoader(Dataset(XTr, YTr), batch_size=cfg["batch_size"], shuffle=True)
         XVl_dl = DataLoader(Dataset(XVl, YVl), batch_size=cfg["batch_size"], shuffle=False)
 
-        model = create_model(cfg)
-        loss_fn = cfg["loss_function"]()
-        optimizer = cfg["optimizer"](model, learning_rate=cfg["learning_rate"], weight_decay=cfg["weight_decay"])
+        # Train model n times and average results
+        in_fold_results = []
+        in_fold_epochs = []
+        for _ in range(5):
+            model = create_model(cfg)
+            loss_fn = cfg["loss_function"]()
+            optimizer = cfg["optimizer"](model, learning_rate=cfg["learning_rate"], weight_decay=cfg["weight_decay"])
+            _, val_result, epochs, _ = train_model(model, loss_fn, optimizer, XTr_dl, XVl_dl, final_metric_fn)
+            in_fold_results.append(val_result)
+            in_fold_epochs.append(epochs)
 
+        fold_results.append(np.mean(in_fold_results))
         # Average the number of epochs needed, so we do not need early stopping when retraining on full data later
-        _, val_result, epochs = train_model(model, loss_fn, optimizer, XTr_dl, XVl_dl, final_metric_fn)
-        fold_results.append(val_result)
-        fold_epochs.append(epochs)
+        fold_epochs.append(np.mean(in_fold_epochs))
 
     return (np.mean(fold_results), int(np.mean(fold_epochs)))
 
@@ -173,7 +195,7 @@ def grid_search_cross_validate(
     parameter_cfgs: list[dict],
     final_metric_fn: callable,
     k: int = 5,
-) -> list[tuple[dict, float]]:
+) -> list[tuple[dict, float, int]]:
     results = []
     for cfg in tqdm(parameter_cfgs):
         result, epochs = cross_validate(X, Y, cfg, final_metric_fn, k=k)
